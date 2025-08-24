@@ -2,14 +2,22 @@ const Game = require("../models/Partie");
 
 exports.createGame = async (req, res) => {
   try {
-    const { creator } = req.body;
-    if (!creator || typeof creator !== "string") {
-      return res.status(400).json({ error: "creator is required (string)" });
-    }
-    const game = await Game.create({ creator });
+    const { username, name } = req.body;
 
-    // émettre en temps réel
-    req.io.emit("game:created", game);
+    if (!username || typeof username !== "string") {
+      return res.status(400).json({ error: "Le nom du joueur (username) est requis" });
+    }
+    if (!name || typeof name !== "string") {
+      return res.status(400).json({ error: "Le nom de la partie (name) est requis" });
+    }
+
+    // Créer la partie via le modèle
+    const game = await Game.create({ username, name });
+
+    // Émettre l'événement Socket.io en temps réel
+    if (req.io) {
+      req.io.emit("game:created", game);
+    }
 
     return res.status(201).json(game);
   } catch (err) {
@@ -18,6 +26,27 @@ exports.createGame = async (req, res) => {
   }
 };
 
+exports.joinGame = async (req, res) => {
+  const { gameId } = req.params
+  const { playerName } = req.body
+
+  if (!gameId || !playerName) {
+    return res.status(400).json({ error: 'gameId et playerName doivent être définis' })
+  }
+
+  try {
+    const game = await Game.joinGame({ gameId, playerName })
+    if (!game) return res.status(404).json({ error: 'Partie introuvable ou déjà commencée' })
+
+    // Optionnel: émettre via Socket.io si tu veux temps réel
+    if (req.io) req.io.emit('game:joined', game)
+
+    res.json({ game })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ error: 'Erreur serveur' })
+  }
+}
 exports.listGames = async (_req, res) => {
   try {
     const games = await Game.listActive();

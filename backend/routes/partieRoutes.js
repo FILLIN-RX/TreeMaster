@@ -11,4 +11,7 @@ router.get("/", controller.listGames);
 // Arrêter une partie
 router.patch("/:id/stop", controller.stopGame);
 
+// Rejoindre une partie
+router.post('/join/:gameId', controller.joinGame);
+
 module.exports = router;

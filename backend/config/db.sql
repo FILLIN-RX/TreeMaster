@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS games (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,               -- Nom de la partie
+    name VARCHAR(100) DEFAULT NULL,               -- Nom de la partie
     creator_id INT NOT NULL,                  -- Joueur qui crée la partie
     opponent_id INT DEFAULT NULL,             -- Joueur qui rejoint
     status ENUM('waiting','in_progress','finished','stopped') DEFAULT 'waiting',
@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS games (
     finished_at DATETIME DEFAULT NULL,
     FOREIGN KEY (creator_id) REFERENCES users(id),
     FOREIGN KEY (opponent_id) REFERENCES users(id)
-) ENGINE=InnoDB;=InnoDB;
+) ENGINE=InnoDB;
 
 -- -----------------------------
 -- Table turns

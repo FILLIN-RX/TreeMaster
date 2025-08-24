@@ -11,30 +11,37 @@ USE TreeMaster;
 -- -----------------------------
 -- Table users
 -- -----------------------------
-
-
-
--- TABLE users (optionnelle pour l'instant; tu peux l'utiliser si tu veux lier un user_id)
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(100) NOT NULL,
+  username VARCHAR(100) NOT NULL UNIQUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- -----------------------------
 -- Table games
 -- -----------------------------
-
 CREATE TABLE IF NOT EXISTS games (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) DEFAULT NULL,               -- Nom de la partie
-    creator_id INT NOT NULL,                  -- Joueur qui crée la partie
-    opponent_id INT DEFAULT NULL,             -- Joueur qui rejoint
     status ENUM('waiting','in_progress','finished','stopped') DEFAULT 'waiting',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    finished_at DATETIME DEFAULT NULL,
-    FOREIGN KEY (creator_id) REFERENCES users(id),
-    FOREIGN KEY (opponent_id) REFERENCES users(id)
+    finished_at DATETIME DEFAULT NULL
+) ENGINE=InnoDB;
+
+-- -----------------------------
+-- Table game_players (nouvelle table de liaison)
+-- -----------------------------
+CREATE TABLE IF NOT EXISTS game_players (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    game_id INT NOT NULL,
+    user_id INT NOT NULL,
+    is_creator BOOLEAN DEFAULT FALSE,
+    is_ready BOOLEAN DEFAULT FALSE,
+    points INT DEFAULT 100, -- Points de départ
+    joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_game_user (game_id, user_id)
 ) ENGINE=InnoDB;
 
 -- -----------------------------
@@ -53,16 +60,15 @@ CREATE TABLE IF NOT EXISTS turns (
 ) ENGINE=InnoDB;
 
 -- -----------------------------
--- Table transactions (optionnelle pour Phase 1)
+-- Table bets (nouvelle table pour les paris)
 -- -----------------------------
-CREATE TABLE IF NOT EXISTS transactions (
+CREATE TABLE IF NOT EXISTS bets (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    game_id INT,
-    amount DECIMAL(10,2) NOT NULL,
-    type ENUM('bet','win','loss','deposit','withdraw') NOT NULL,
+    game_id INT NOT NULL,
+    player_id INT NOT NULL,
+    amount INT NOT NULL,
+    prediction VARCHAR(20) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (game_id) REFERENCES games(id)
+    FOREIGN KEY (game_id) REFERENCES games(id),
+    FOREIGN KEY (player_id) REFERENCES users(id)
 ) ENGINE=InnoDB;
-

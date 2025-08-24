@@ -14,4 +14,10 @@ router.patch("/:id/stop", controller.stopGame);
 // Rejoindre une partie
 router.post('/join/:gameId', controller.joinGame);
 
+// Marquer un joueur comme prêt
+router.post('/:gameId/ready', controller.setPlayerReady);
+
+// Récupérer l'état d'une partie
+router.get('/:gameId/state', controller.getGameState);
+
 module.exports = router;

@@ -169,7 +169,7 @@ const joinGame = async (gameId) => {
       body: { playerName: playerName.value }
     })
     sessionStorage.setItem(`game_${gameId}_playerId`, result.playerId || 1)
-    // navigateTo(`/game/${gameId}`)
+    navigateTo(`/${gameId}`)
   } catch (error) {
     alert('Erreur rejoindre partie: ' + (error.data?.error || error.message))
     console.error(error)

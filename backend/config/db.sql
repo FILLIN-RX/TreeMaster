@@ -4,34 +4,33 @@
 -- =====================================================
 
 -- Créer la base de données
+DROP DATABASE IF EXISTS TreeMaster;
 CREATE DATABASE IF NOT EXISTS TreeMaster;
 USE TreeMaster;
 
 -- -----------------------------
 -- Table users
 -- -----------------------------
+
+
+
+-- TABLE users (optionnelle pour l'instant; tu peux l'utiliser si tu veux lier un user_id)
 CREATE TABLE IF NOT EXISTS users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    email VARCHAR(100),
-    password VARCHAR(255) NOT NULL,
-    balance DECIMAL(10,2) DEFAULT 0.00,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  username VARCHAR(100) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- -----------------------------
 -- Table games
 -- -----------------------------
+
+-- TABLE games (création / listing / arrêt)
 CREATE TABLE IF NOT EXISTS games (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    game_type VARCHAR(50) NOT NULL,
-    player1_id INT NOT NULL,
-    player2_id INT,
-    status ENUM('waiting','in_progress','finished') DEFAULT 'waiting',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    finished_at DATETIME,
-    FOREIGN KEY (player1_id) REFERENCES users(id),
-    FOREIGN KEY (player2_id) REFERENCES users(id)
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  creator VARCHAR(100) NOT NULL,
+  status ENUM('waiting','in_progress','stopped') DEFAULT 'in_progress',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- -----------------------------
@@ -63,9 +62,3 @@ CREATE TABLE IF NOT EXISTS transactions (
     FOREIGN KEY (game_id) REFERENCES games(id)
 ) ENGINE=InnoDB;
 
--- =============================
--- Exemple d'insertion initiale (optionnel)
--- =============================
-INSERT INTO users (username, email, password, balance)
-VALUES ('Player1', 'player1@example.com', 'password_hash', 100.00),
-       ('Player2', 'player2@example.com', 'password_hash', 100.00);

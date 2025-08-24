@@ -1,11 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const partieController = require("../controllers/partieController");
+const controller = require("../controllers/partieController");
 
 // Créer une partie
-router.post("/", partieController.creerPartie);
+router.post("/", controller.createGame);
 
-// Lister les parties en cours
-router.get("/", partieController.listerParties);
+// Lister les parties actives (waiting + in_progress)
+router.get("/", controller.listGames);
+
+// Arrêter une partie
+router.patch("/:id/stop", controller.stopGame);
 
 module.exports = router;

@@ -25,13 +25,17 @@ CREATE TABLE IF NOT EXISTS users (
 -- Table games
 -- -----------------------------
 
--- TABLE games (création / listing / arrêt)
 CREATE TABLE IF NOT EXISTS games (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  creator VARCHAR(100) NOT NULL,
-  status ENUM('waiting','in_progress','stopped') DEFAULT 'in_progress',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,               -- Nom de la partie
+    creator_id INT NOT NULL,                  -- Joueur qui crée la partie
+    opponent_id INT DEFAULT NULL,             -- Joueur qui rejoint
+    status ENUM('waiting','in_progress','finished','stopped') DEFAULT 'waiting',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    finished_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (creator_id) REFERENCES users(id),
+    FOREIGN KEY (opponent_id) REFERENCES users(id)
+) ENGINE=InnoDB;=InnoDB;
 
 -- -----------------------------
 -- Table turns

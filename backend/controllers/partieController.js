@@ -19,7 +19,11 @@ exports.createGame = async (req, res) => {
       req.io.emit("game:created", game);
     }
 
-    return res.status(201).json(game);
+    return res.status(201).json({ 
+      id: game.id, 
+      creatorId: game.players.find(p => p.is_creator).id, 
+      name: game.name 
+    });
   } catch (err) {
     console.error("createGame error:", err);
     return res.status(500).json({ error: "Internal server error" });
@@ -38,10 +42,14 @@ exports.joinGame = async (req, res) => {
     const game = await Game.joinGame({ gameId, playerName });
     if (!game) return res.status(404).json({ error: 'Partie introuvable ou déjà commencée' });
 
+    // Récupérer l'ID du joueur qui vient de rejoindre
+    const newPlayer = game.players.find(p => p.username === playerName);
+    const playerId = newPlayer ? newPlayer.id : null;
+
     // Optionnel: émettre via Socket.io si tu veux temps réel
     if (req.io) req.io.emit('game:joined', game);
 
-    res.json({ game });
+    res.json({ playerId, game });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'Erreur serveur' });
@@ -109,5 +117,20 @@ exports.getGameState = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message || 'Erreur serveur' });
+  }
+};
+
+// Nouvelle méthode pour terminer une partie
+exports.endGame = async (req, res) => {
+  try {
+    const { gameId } = req.params;
+    const game = await Game.stop(gameId);
+    if (!game) return res.status(404).json({ error: "Partie non trouvée ou déjà terminée" });
+
+    if (req.io) req.io.emit("game:stopped", game);
+    return res.json({ message: "Partie terminée", game });
+  } catch (err) {
+    console.error("endGame error:", err);
+    return res.status(500).json({ error: "Erreur serveur" });
   }
 };

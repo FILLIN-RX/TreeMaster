@@ -14,7 +14,7 @@
             <p class="text-gray-600">Statut: {{ getStateText() }}</p>
             <p class="text-sm text-gray-500">Créée le: {{ formatDate(gameState.created_at) }}</p>
           </div>
-          <NuxtLink to="/games" class="px-4 py-2 bg-gray-600 text-white rounded-md">
+          <NuxtLink to="/GamesParties" class="px-4 py-2 bg-gray-600 text-white rounded-md">
             Retour aux parties
           </NuxtLink>
         </div>
@@ -106,9 +106,8 @@ const playerId = ref(null)
 
 const fetchGameState = async () => {
   try {
-    // Cette route doit être implémentée côté backend
-    const data = await $fetch(`/api/games/${gameId}`)
-    gameState.value = data
+    const data = await $fetch(`http://localhost:5000/api/games/${gameId}/state`)
+    gameState.value = data.gameState
   } catch (error) {
     console.error('Erreur chargement état:', error)
   }
@@ -119,8 +118,7 @@ const setReady = async () => {
   
   loading.value = true
   try {
-    // Cette route doit être implémentée côté backend
-    await $fetch(`/api/games/${gameId}/ready`, {
+    await $fetch(`http://localhost:5000/api/games/${gameId}/ready`, {
       method: 'POST',
       body: { playerId: playerId.value }
     })

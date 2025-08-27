@@ -77,7 +77,7 @@
             <div class="mt-2 text-sm text-gray-700">
               <strong>Participants ({{ game.players?.length || 1 }}):</strong>
               <span v-for="(p, idx) in game.players || []" :key="idx">
-                {{ p.name }}<span v-if="idx < (game.players.length -1)">, </span>
+                {{ p.username }}<span v-if="idx < (game.players.length -1)">, </span>
               </span>
             </div>
           </div>
@@ -147,7 +147,7 @@ const createGame = async () => {
       method: 'POST',
       body: { username: playerName.value, name: gameName.value }
     })
-    sessionStorage.setItem(`game_${result.id}_playerId`, result.creatorId || 1)
+    sessionStorage.setItem(`game_${result.id}_playerId`, result.creatorId)
     navigateTo(`/game/${result.id}`)
   } catch (error) {
     alert('Erreur création partie: ' + (error.data?.error || error.message))
@@ -168,7 +168,7 @@ const joinGame = async (gameId) => {
       method: 'POST',
       body: { playerName: playerName.value }
     })
-    sessionStorage.setItem(`game_${gameId}_playerId`, result.playerId || 1)
+    sessionStorage.setItem(`game_${gameId}_playerId`, result.playerId)
     navigateTo(`/${gameId}`)
   } catch (error) {
     alert('Erreur rejoindre partie: ' + (error.data?.error || error.message))
@@ -204,8 +204,9 @@ const formatDate = (dateString) => {
 }
 
 const isCreator = (game) => {
-  // suppose que le premier joueur (creator) est toujours le créateur
-  return game.creator === playerName.value
+  if (!playerName.value || !game.players) return false;
+  const creator = game.players.find(p => p.is_creator);
+  return creator && creator.username === playerName.value;
 }
 
 onMounted(() => {

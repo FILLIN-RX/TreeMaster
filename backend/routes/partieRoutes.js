@@ -20,4 +20,7 @@ router.post('/:gameId/ready', controller.setPlayerReady);
 // Récupérer l'état d'une partie
 router.get('/:gameId/state', controller.getGameState);
 
+// Terminer une partie
+router.post('/end/:gameId', controller.endGame);
+
 module.exports = router;

@@ -3,9 +3,10 @@ const bcrypt = require('bcrypt');
 const pool = require('../config/db');
 const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 // Secret JWT (idéalement mettre dans .env)
-const JWT_SECRET = 'ton_secret_super_secure';
+const JWT_SECRET = process.env.JWT_SECRET;
 
 
 
@@ -97,5 +98,27 @@ const login = [
     }
   },
 ];
+// Récupérer les infos de l'utilisateur connecté
+const getAccount = async (req, res) => {
+  try {
+    // req.user a été ajouté par authenticateUser
+    const userId = req.user.id;
 
-module.exports = { register ,login};
+    // Rechercher l'utilisateur en DB sans le mot de passe
+    const [rows] = await pool.query(
+      'SELECT id, username, email, balance, created_at FROM users WHERE id = ?',
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    res.json(rows[0]); // renvoie les infos de l'utilisateur
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
+module.exports = { register, login, getAccount };

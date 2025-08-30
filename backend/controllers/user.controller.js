@@ -124,7 +124,7 @@ const getAccount = async (req, res) => {
 // Déconnexion (invalide le token côté client)
 const logout = (req, res) => {
   // Ici pas besoin de toucher au token côté serveur
-  res.json({ message: 'Déconnexion réussie, veuillez supprimer le token côté client.' });
+  res.json({ message: 'Déconnexion réussie' });
 };
 // Mot de passe oublié
 const forgotPassword = async (req, res) => {
@@ -234,7 +234,7 @@ const changePassword = async (req, res) => {
 // ✅ Mettre à jour le profil
 const updateProfile = async (req, res) => {
   const { username, email } = req.body;
-  const userId = req.user.id;
+  const userId = req.body.id ;
 
   try {
     // Vérifier si un email ou username existe déjà (sauf le sien)

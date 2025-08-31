@@ -20,59 +20,42 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
 -- -----------------------------
 -- Table games
 -- -----------------------------
-CREATE TABLE IF NOT EXISTS games (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) DEFAULT NULL,               -- Nom de la partie
-    status ENUM('waiting','in_progress','finished','stopped') DEFAULT 'waiting',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    finished_at DATETIME DEFAULT NULL
-) ENGINE=InnoDB;
+CREATE TABLE Game (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(100) NOT NULL,
+  min_bet DECIMAL(10,2) NOT NULL,
+  max_players INT NOT NULL,
+  status ENUM('waiting', 'in_progress', 'finished') DEFAULT 'waiting',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ------------------------------
+-- Table bet
+-- ------------------------------
+CREATE TABLE bets (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  game_id INT NOT NULL,
+  montant DECIMAL(10,2) NOT NULL,
+  statut ENUM('active', 'canceled', 'settled') DEFAULT 'active',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (game_id) REFERENCES Game(id) ON DELETE CASCADE
+);
 
 -- -----------------------------
--- Table game_players (nouvelle table de liaison)
+-- Table game_players (relation entre jeux et joueurs)
 -- -----------------------------
-CREATE TABLE IF NOT EXISTS game_players (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    game_id INT NOT NULL,
-    user_id INT NOT NULL,
-    is_creator BOOLEAN DEFAULT FALSE,
-    is_ready BOOLEAN DEFAULT FALSE,
-    points INT DEFAULT 100, -- Points de départ
-    joined_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (game_id) REFERENCES games(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_game_user (game_id, user_id)
-) ENGINE=InnoDB;
+CREATE TABLE GamePlayers (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  game_id INT NOT NULL,
+  user_id INT NOT NULL,
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (game_id) REFERENCES Game(id),
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
 
--- -----------------------------
--- Table turns
--- -----------------------------
-CREATE TABLE IF NOT EXISTS turns (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    game_id INT NOT NULL,
-    player_id INT NOT NULL,
-    action VARCHAR(50) NOT NULL,
-    result INT,
-    turn_number INT NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (game_id) REFERENCES games(id),
-    FOREIGN KEY (player_id) REFERENCES users(id)
-) ENGINE=InnoDB;
-
--- -----------------------------
--- Table bets (nouvelle table pour les paris)
--- -----------------------------
-CREATE TABLE IF NOT EXISTS bets (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    game_id INT NOT NULL,
-    player_id INT NOT NULL,
-    amount INT NOT NULL,
-    prediction VARCHAR(20) NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (game_id) REFERENCES games(id),
-    FOREIGN KEY (player_id) REFERENCES users(id)
-) ENGINE=InnoDB;

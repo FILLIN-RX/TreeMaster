@@ -9,11 +9,13 @@ export default defineNuxtConfig({
   vite: {
     plugins: [
       tailwindcss(),
+      
     ],
   },
   alias:{
     '@': resolve(__dirname,"/"),
    },
+   
   
   modules: [
     '@nuxt/eslint',
@@ -21,7 +23,10 @@ export default defineNuxtConfig({
     '@nuxt/scripts',
     '@nuxt/test-utils',
     '@nuxt/ui',
-    '@nuxt/content'
-  ]
+    '@nuxt/fonts'
+  ],
+  fonts:{
+    provider:"none",
+  }
 })
 
